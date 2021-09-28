@@ -1,0 +1,16 @@
+[
+    {
+        "id": "badc8bc0-1d39-11ec-9042-a5ec7986fc79",
+        "title": "A book",
+        "imageUrl": "https://www.pngarts.com/files/2/Book-PNG-Image-Background.png",
+        "price": 9.99,
+        "description": "An amazing book!"
+    },
+    {
+        "id": "ce831040-1d39-11ec-a35d-2b2f3065bcac",
+        "title": "A table",
+        "imageUrl": "https://purepng.com/public/uploads/large/purepng.com-tabletabledeskboardcook-tablefurniture-1701527998855osb4d.png",
+        "price": 39.99,
+        "description": "An old wooden table!"
+    }
+]

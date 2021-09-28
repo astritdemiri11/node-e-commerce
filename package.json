@@ -5,11 +5,21 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "dev": "nodemon ./src/index.js"
+    "dev": "start http://localhost:3000 & nodemon ./src/index.js -e js,hbs,handlebars,pug,ejs"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "express-handlebars": "^5.3.4",
+    "hbs": "^4.1.2",
+    "mysql2": "^2.3.0",
+    "nodemon": "^2.0.7",
+    "pug": "^3.0.2",
+    "sequelize": "^6.6.5"
+  },
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "uuid": "^8.3.2"
   }
 }
