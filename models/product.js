@@ -1,6 +1,20 @@
-const Sequelize = require('sequelize');
+const mongoClient = require('../utils/database');
 
-const sequelize = require('../utils/database');
+class Product {
+    constructor(title, price, imageUrl, description) {
+        this.title = title;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.description = description;
+    }
+
+    save() {
+        mongoClient(client => {
+            const productCollection = client.collection('products');
+            productCollection.insert
+        });
+    }
+}
 
 const Product = sequelize.define('product', {
     id: {

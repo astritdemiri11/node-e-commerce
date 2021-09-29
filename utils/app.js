@@ -6,7 +6,6 @@ const expressLib = require('express');
 
 // Local
 const rootDir = require('./path');
-const User = require('../models/user');
 
 const adminRoutes = require('../routes/admin');
 const shopRoutes = require('../routes/shop');
@@ -21,10 +20,10 @@ app.use(expressLib.static(publicDir));
 app.use(expressLib.urlencoded({ extended: true }));
 
 app.use((req, _res, next) => {
-    User.findByPk(1).then(user => {
-        req.user = user;
-        next();
-    });
+    // User.findByPk(1).then(user => {
+    //     req.user = user;
+    //     next();
+    // });
 });
 
 app.set('view engine', 'ejs');
