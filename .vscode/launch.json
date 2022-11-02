@@ -12,7 +12,8 @@
       "program": "${workspaceFolder}\\index.js",
       "restart": true,
       "runtimeExecutable": "nodemon",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}\\config\\dev.env"
     }
   ]
 }

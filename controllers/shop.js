@@ -1,4 +1,4 @@
-const Product = require('../models/product');
+const Product = require('../models/sequelize/product');
 
 // GET Routes
 module.exports.getIndex = (_req, res) => {
@@ -113,9 +113,11 @@ module.exports.postOrders = (req, res) => {
         throw new Error('Order not found!');
       }
 
-      return order.addProducts(cartProducts.map((product) => ({
-        ...product, orderItem: { quantity: product.cartItem.quantity },
-      })));
+      return order.addProducts(cartProducts.map((product) => {
+        const prod = product;
+        prod.orderItem = { quantity: product.cartItem.quantity };
+        return prod;
+      }));
     })
     .then((rows) => {
       if (rows.length === 0) {
