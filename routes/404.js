@@ -1,13 +1,11 @@
-// Core Libs.
-const pathLib = require('path');
+// const path = require('path');
 
-// 3rd Party Libs.
-const expressLib = require('express');
+const express = require('express');
 
 // Local
 const errorController = require('../controllers/error');
 
-const router = expressLib.Router();
+const router = express.Router();
 
 router.get('*', errorController.get404);
 

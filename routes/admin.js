@@ -1,10 +1,8 @@
-// 3rd Party Libs.
-const expressLib = require('express');
+const express = require('express');
 
-// Local
 const adminController = require('../controllers/admin');
 
-const router = expressLib.Router();
+const router = express.Router();
 
 // GET Routes
 router.get('/products', adminController.getProducts);

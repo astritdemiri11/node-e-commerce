@@ -1,10 +1,8 @@
-// 3rd Party Libs.
-const expressLib = require('express');
+const express = require('express');
 
-// Local
 const shopController = require('../controllers/shop');
 
-const router = expressLib.Router();
+const router = express.Router();
 
 // GET Routes
 router.get('/', shopController.getIndex);

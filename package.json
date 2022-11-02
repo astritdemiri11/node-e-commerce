@@ -1,7 +1,7 @@
 {
-  "name": "complete-guide",
+  "name": "e-commerce",
   "version": "1.0.0",
-  "description": "",
+  "description": "E-commerce built with Node.js",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
@@ -10,13 +10,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^8.26.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "mysql2": "^2.3.0",
-    "nodemon": "^2.0.7",
-    "sequelize": "^6.6.5"
+    "nodemon": "^2.0.7"
   },
   "dependencies": {
     "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "sequelize": "^6.6.5",
     "mongodb": "^4.1.2"
   }
 }
