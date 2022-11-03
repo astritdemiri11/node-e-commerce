@@ -70,6 +70,7 @@ exports.postEditProduct = (req, res) => {
       prod.price = updatedPrice;
       prod.description = updatedDesc;
       prod.imageUrl = updatedImageUrl;
+
       return prod.save();
     })
     .then(() => {
@@ -98,6 +99,7 @@ exports.getProducts = (req, res) => {
 // POST Routes
 exports.postDeleteProduct = (req, res) => {
   const prodId = req.body.productId;
+
   Product.findByIdAndRemove(prodId)
     .then(() => {
       res.redirect('/admin/products');
