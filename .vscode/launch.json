@@ -9,11 +9,11 @@
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}\\index.js",
+      "program": "${workspaceFolder}\\src\\index.ts",
       "restart": true,
       "runtimeExecutable": "nodemon",
       "console": "integratedTerminal",
-      "envFile": "${workspaceFolder}\\config\\dev.env"
+      "envFile": "${workspaceFolder}\\src\\config\\dev.env"
     }
   ]
 }
