@@ -25,7 +25,7 @@ export default (callback: any) => {
       if (!user) {
         return User.create({
           name: 'Astrit Demiri',
-          email: 'contact@astritdemiri.com',
+          email: 'astritdemiri06@gmail.com',
         });
       }
 

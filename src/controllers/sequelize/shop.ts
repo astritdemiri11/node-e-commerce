@@ -5,9 +5,17 @@ import Product from '../../models/sequelize/product';
 // GET Routes
 export const getIndex = (_req: Request, res: Response) => {
   Product.findAll().then((products) => {
-    res.render('sequelize/shop/products', { products, pageTitle: 'Products', linkIndex: 0 });
+    res.render('sequelize/shop/products', {
+      products,
+      pageTitle: 'Products',
+      linkIndex: 0,
+    });
   }).catch(() => {
-    res.status(500).render('sequelize/shop/products', { pageTitle: 'Products', linkIndex: 0, products: [] });
+    res.status(500).render('sequelize/shop/products', {
+      pageTitle: 'Products',
+      linkIndex: 0,
+      products: [],
+    });
   });
 };
 
@@ -17,38 +25,73 @@ export const getProduct = (req: Request, res: Response) => {
       throw new Error('Product not found!');
     }
 
-    res.render('sequelize/shop/product', { product, pageTitle: 'Product detail', linkIndex: 1 });
+    res.render('sequelize/shop/product', {
+      product,
+      pageTitle: 'Product detail',
+      linkIndex: 1,
+    });
   }).catch(() => {
-    res.status(500).render('sequelize/shop/product', { pageTitle: 'Product detail', linkIndex: 1, product: null });
+    res.status(500).render('sequelize/shop/product', {
+      pageTitle: 'Product detail',
+      product: null,
+      linkIndex: 1,
+    });
   });
 };
 
 export const getProducts = (_req: Request, res: Response) => {
   Product.findAll().then((products) => {
-    res.render('sequelize/shop/products', { products, pageTitle: 'Products', linkIndex: 1 });
+    res.render('sequelize/shop/products', {
+      products,
+      pageTitle: 'Products',
+      linkIndex: 1,
+    });
   }).catch(() => {
-    res.status(500).render('sequelize/shop/products', { pageTitle: 'Products', linkIndex: 1, products: [] });
+    res.status(500).render('sequelize/shop/products', {
+      pageTitle: 'Products',
+      products: [],
+      linkIndex: 1,
+    });
   });
 };
 
 export const getCart = (req: any, res: Response) => {
   req.user.getCart().then((cart: any) => cart.getProducts()).then((products: any) => {
-    res.render('sequelize/shop/cart', { pageTitle: 'Cart', linkIndex: 2, products });
+    res.render('sequelize/shop/cart', {
+      pageTitle: 'Cart',
+      products,
+      linkIndex: 2,
+    });
   }).catch(() => {
-    res.render('sequelize/shop/cart', { pageTitle: 'Cart', linkIndex: 2, products: [] });
+    res.render('sequelize/shop/cart', {
+      pageTitle: 'Cart',
+      products: [],
+      linkIndex: 2,
+    });
   });
 };
 
 export const getOrders = (req: any, res: Response) => {
   req.user.getOrders({ include: ['products'] }).then((orders: any) => {
-    res.render('sequelize/shop/orders', { pageTitle: 'Orders', linkIndex: 3, orders });
+    res.render('sequelize/shop/orders', {
+      pageTitle: 'Orders',
+      orders,
+      linkIndex: 3,
+    });
   }).catch(() => {
-    res.status(500).render('sequelize/shop/orders', { pageTitle: 'Orders', linkIndex: 3, orders: [] });
+    res.status(500).render('sequelize/shop/orders', {
+      pageTitle: 'Orders',
+      orders: [],
+      linkIndex: 3,
+    });
   });
 };
 
 export const getCheckout = (_req: Request, res: Response) => {
-  res.render('sequelize/shop/checkout', { pageTitle: 'Checkout', linkIndex: -1 });
+  res.render('sequelize/shop/checkout', {
+    pageTitle: 'Checkout',
+    linkIndex: -1,
+  });
 };
 
 // POST Routes

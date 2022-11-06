@@ -1,4 +1,6 @@
+import flash from 'connect-flash';
 import MongoDBStore from 'connect-mongodb-session';
+import csrf from 'csurf';
 import express, { NextFunction, Response } from 'express';
 import session from 'express-session';
 import path from 'path';
@@ -33,13 +35,26 @@ app.use(
     store,
   }),
 );
+app.use(csrf());
+app.use(flash());
 
 app.use((req: any, _res: Response, next: NextFunction) => {
+  if (!req.session.user) {
+    return next();
+  }
+
   User.findById(req.session.user._id)
-    .then((user) => {
+    .then(user => {
       req.user = user;
       next();
-    });
+    })
+    .catch(err => console.log(err));
+});
+
+app.use((req: any, res: Response, next: NextFunction) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use('/admin', adminRoutes);

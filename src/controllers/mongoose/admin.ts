@@ -6,8 +6,8 @@ export const getAddProduct = (_req: Request, res: Response) => {
   res.render('mongoose/admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    linkIndex: 4,
     editing: false,
+    linkIndex: 4,
   });
 };
 
@@ -56,7 +56,7 @@ export const getEditProduct = (req: Request, res: Response) => {
     });
 };
 
-export const postEditProduct = (req: Request, res: Response) => {
+export const postEditProduct = (req: any, res: Response) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
@@ -64,26 +64,30 @@ export const postEditProduct = (req: Request, res: Response) => {
   const updatedDesc = req.body.description;
 
   Product.findById(prodId)
-    .then((product) => {
+    .then((product: any) => {
       if (product) {
+        if (product.userId.toString() !== req.user._id.toString()) {
+          return res.redirect('/');
+        }
+
         product.title = updatedTitle;
         product.price = updatedPrice;
         product.description = updatedDesc;
         product.imageUrl = updatedImageUrl;
 
-        return product.save();
+        return product.save()
+          .then(() => {
+            res.redirect('/admin/products');
+          });
       }
-    })
-    .then(() => {
-      res.redirect('/admin/products');
     })
     .catch(() => {
 
     });
 };
 
-export const getProducts = (_req: Request, res: Response) => {
-  Product.find()
+export const getProducts = (req: any, res: Response) => {
+  Product.find({ userId: req.user._id })
     .then((products) => {
       res.render('mongoose/admin/products', {
         products,
@@ -98,10 +102,10 @@ export const getProducts = (_req: Request, res: Response) => {
 };
 
 // POST Routes
-export const postDeleteProduct = (req: Request, res: Response) => {
+export const postDeleteProduct = (req: any, res: Response) => {
   const prodId = req.body.productId;
 
-  Product.findByIdAndRemove(prodId)
+  Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then(() => {
       res.redirect('/admin/products');
     })

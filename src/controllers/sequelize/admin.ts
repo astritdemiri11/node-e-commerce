@@ -1,14 +1,26 @@
 // GET Routes
 export const getProducts = (req: any, res: any) => {
   req.user.getProducts().then((products: any) => {
-    res.render('sequelize/admin/products', { products, pageTitle: 'Products', linkIndex: 5 });
+    res.render('sequelize/admin/products', {
+      products,
+      pageTitle: 'Products',
+      linkIndex: 5
+    });
   }).catch(() => {
-    res.status(500).render('sequelize/admin/products', { pageTitle: 'Products', linkIndex: 5, products: [] });
+    res.status(500).render('sequelize/admin/products', {
+      pageTitle: 'Products',
+      products: [],
+      linkIndex: 5,
+    });
   });
 };
 
 export const getAddProduct = (_req: Request, res: any) => {
-  res.render('sequelize/admin/edit-product', { pageTitle: 'Add Product', linkIndex: 4, editing: false });
+  res.render('sequelize/admin/edit-product', {
+    pageTitle: 'Add Product',
+    editing: false,
+    linkIndex: 4,
+  });
 };
 
 export const getEditProduct = (req: any, res: any) => {
@@ -25,7 +37,10 @@ export const getEditProduct = (req: any, res: any) => {
 
     const product = products[0];
     return res.render('sequelize/admin/edit-product', {
-      pageTitle: 'Edit Product', linkIndex: 5, editing, product,
+      pageTitle: 'Edit Product',
+      editing,
+      product,
+      linkIndex: 5,
     });
   });
 };
