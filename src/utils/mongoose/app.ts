@@ -34,7 +34,7 @@ app.use(
   }),
 );
 
-app.use((req: any, res: Response, next: NextFunction) => {
+app.use((req: any, _res: Response, next: NextFunction) => {
   User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;

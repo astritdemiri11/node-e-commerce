@@ -7,7 +7,7 @@ export const getProducts = (req: any, res: any) => {
   });
 };
 
-export const getAddProduct = (req: Request, res: any) => {
+export const getAddProduct = (_req: Request, res: any) => {
   res.render('sequelize/admin/edit-product', { pageTitle: 'Add Product', linkIndex: 4, editing: false });
 };
 

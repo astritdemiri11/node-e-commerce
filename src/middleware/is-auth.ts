@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 
 export default (req: any, res: Response, next: NextFunction) => {
   if (!req.session.isLoggedIn) {

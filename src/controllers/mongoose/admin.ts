@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import Product from '../../models/mongoose/product';
 
-export const getAddProduct = (req: Request, res: Response) => {
+export const getAddProduct = (_req: Request, res: Response) => {
   res.render('mongoose/admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
@@ -82,7 +82,7 @@ export const postEditProduct = (req: Request, res: Response) => {
     });
 };
 
-export const getProducts = (req: Request, res: Response) => {
+export const getProducts = (_req: Request, res: Response) => {
   Product.find()
     .then((products) => {
       res.render('mongoose/admin/products', {

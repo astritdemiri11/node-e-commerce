@@ -1,7 +1,7 @@
 import Order from '../../models/mongoose/order';
 import Product from '../../models/mongoose/product';
 
-export const getProducts = (req: Request, res: any) => {
+export const getProducts = (_req: Request, res: any) => {
   Product.find()
     .then((products) => {
       res.render('mongoose/shop/products', {
@@ -31,7 +31,7 @@ export const getProduct = (req: any, res: any) => {
     });
 };
 
-export const getIndex = (req: Request, res: any) => {
+export const getIndex = (_req: Request, res: any) => {
   Product.find()
     .then((products) => {
       res.render('mongoose/shop/index', {

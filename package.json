@@ -4,15 +4,17 @@
   "description": "E-commerce built with Node.js",
   "main": "index.js",
   "scripts": {
-    "start": "env-cmd --file=\"./src/config/dev.env\" node ./dist/index.js",
-    "dev": "env-cmd --file=\"./src/config/dev.env\" start http://localhost:3000 & nodemon ./src/index.ts",
+    "start": "env-cmd --file=\"./config/dev.env\" node ./dist/index.js",
+    "dev": "env-cmd --file=\"./config/dev.env\" nodemon ./src/index.ts",
     "build": "tsc -p ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^3.1.1",
+    "csurf": "^1.11.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-session": "^1.17.3",

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import Product from '../../models/sequelize/product';
 
 // GET Routes
-export const getIndex = (req: Request, res: Response) => {
+export const getIndex = (_req: Request, res: Response) => {
   Product.findAll().then((products) => {
     res.render('sequelize/shop/products', { products, pageTitle: 'Products', linkIndex: 0 });
   }).catch(() => {
@@ -23,7 +23,7 @@ export const getProduct = (req: Request, res: Response) => {
   });
 };
 
-export const getProducts = (req: Request, res: Response) => {
+export const getProducts = (_req: Request, res: Response) => {
   Product.findAll().then((products) => {
     res.render('sequelize/shop/products', { products, pageTitle: 'Products', linkIndex: 1 });
   }).catch(() => {
@@ -47,7 +47,7 @@ export const getOrders = (req: any, res: Response) => {
   });
 };
 
-export const getCheckout = (req: Request, res: Response) => {
+export const getCheckout = (_req: Request, res: Response) => {
   res.render('sequelize/shop/checkout', { pageTitle: 'Checkout', linkIndex: -1 });
 };
 
