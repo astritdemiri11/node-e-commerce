@@ -36,6 +36,6 @@ export default (callback: any) => {
       callback();
     })
     .catch((error) => {
-      console.log(error);
+      throw new Error(error);
     });
 };

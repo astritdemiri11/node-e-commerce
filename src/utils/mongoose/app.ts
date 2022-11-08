@@ -45,10 +45,16 @@ app.use((req: any, _res: Response, next: NextFunction) => {
 
   User.findById(req.session.user._id)
     .then(user => {
+      if (!user) {
+        return next();
+      }
+
       req.user = user;
       next();
     })
-    .catch(err => console.log(err));
+    .catch(error => {
+      throw new Error(error)
+    });
 });
 
 app.use((req: any, res: Response, next: NextFunction) => {

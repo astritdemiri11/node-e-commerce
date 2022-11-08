@@ -10,8 +10,7 @@ const sendgridTransport = require('nodemailer-sendgrid-transport');
 const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
-      api_key:
-        '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'
+      api_key: process.env.SENDGRID_KEY
     }
   })
 );
@@ -29,6 +28,11 @@ export const getLogin = (req: any, res: Response) => {
     path: '/login',
     pageTitle: 'Login',
     errorMessage: message,
+    values: {
+      email: '',
+      password: '',
+    },
+    validationErrors: [],
     linkIndex: 6,
   });
 };
@@ -47,12 +51,33 @@ export const getSignup = (req: any, res: Response) => {
     path: '/signup',
     pageTitle: 'Signup',
     errorMessage: message,
+    values: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationErrors: [],
     linkIndex: 7,
   });
 };
 
 export const postLogin = (req: any, res: Response) => {
   const { email, password } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('mongoose/auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      values: {
+        email: email,
+        password: password
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+      linkIndex: 6,
+    });
+  }
 
   User.findOne({ email })
     .then((user: any) => {
@@ -83,18 +108,24 @@ export const postLogin = (req: any, res: Response) => {
 };
 
 export const postSignup = (req: any, res: Response) => {
+  const { email, password } = req.body;
   const errors = validationResult(req);
+
 
   if (!errors.isEmpty()) {
     return res.status(422).render('mongoose/auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
       errorMessage: errors.array()[0].msg,
+      values: {
+        email,
+        password,
+        confirmPassword: req.body.confirmPassword
+      },
+      validationErrors: errors.array(),
       linkIndex: 7,
     });;
   }
-
-  const { email, password } = req.body;
 
   bcrypt
     .hash(password, 12)
@@ -135,20 +166,22 @@ export const getReset = (req: Request, res: Response) => {
     message = null;
   }
 
-  res.render('auth/reset', {
+  res.render('mongoose/auth/reset', {
     path: '/reset',
     pageTitle: 'Reset Password',
-    errorMessage: message
+    errorMessage: message,
+    linkIndex: -1,
   });
 };
 
 export const postReset = (req: Request, res: Response) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
-      console.log(err);
       return res.redirect('/reset');
     }
+
     const token = buffer.toString('hex');
+
     User.findOne({ email: req.body.email })
       .then((user: any) => {
         if (!user) {
@@ -171,8 +204,8 @@ export const postReset = (req: Request, res: Response) => {
           `
         });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(error => {
+        throw new Error(error);
       });
   });
 };
@@ -190,16 +223,17 @@ export const getNewPassword = (req: Request, res: Response) => {
         message = null;
       }
 
-      res.render('auth/new-password', {
+      res.render('mongoose/auth/new-password', {
         path: '/new-password',
         pageTitle: 'New Password',
         errorMessage: message,
         userId: user._id.toString(),
-        passwordToken: token
+        passwordToken: token,
+        linkIndex: -1,
       });
     })
-    .catch(err => {
-      console.log(err);
+    .catch(error => {
+      throw new Error(error);
     });
 };
 
@@ -227,7 +261,7 @@ export const postNewPassword = (req: Request, res: Response) => {
     .then(() => {
       res.redirect('/login');
     })
-    .catch(err => {
-      console.log(err);
+    .catch(error => {
+      throw new Error(error);
     });
 };

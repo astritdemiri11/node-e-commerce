@@ -6,6 +6,6 @@ export const connect = (callback: any) => {
   mongoose.connect(`${connectionLink}&retryWrites=true`).then(() => {
     callback();
   }).catch((error) => {
-    console.log(error);
+    throw new Error(error);
   });
 };

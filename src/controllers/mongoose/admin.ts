@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
 
 import Product from '../../models/mongoose/product';
 
@@ -12,11 +13,35 @@ export const getAddProduct = (_req: Request, res: Response) => {
 };
 
 export const postAddProduct = (req: any, res: Response) => {
+  const title = req.body.title;
+  const imageUrl = req.body.imageUrl;
+  const price = req.body.price;
+  const description = req.body.description;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('mongoose/admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/edit-product',
+      editing: false,
+      hasError: true,
+      product: {
+        title,
+        imageUrl,
+        price,
+        description,
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+      linkIndex: 4,
+    });
+  }
+
   const product = new Product({
-    title: req.body.title,
-    price: req.body.price,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
+    title,
+    price,
+    description,
+    imageUrl,
     userId: req.user,
   });
 
@@ -48,6 +73,9 @@ export const getEditProduct = (req: Request, res: Response) => {
         path: '/admin/edit-product',
         editing: editMode,
         product,
+        hasError: false,
+        errorMessage: null,
+        validationErrors: [],
         linkIndex: 5,
       });
     })
@@ -62,6 +90,27 @@ export const postEditProduct = (req: any, res: Response) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('mongoose/admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      hasError: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        price: updatedPrice,
+        description: updatedDesc,
+        _id: prodId
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+      linkIndex: 5,
+    });
+  }
 
   Product.findById(prodId)
     .then((product: any) => {
