@@ -1,47 +1,69 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
 import Product from '../../models/mongoose/product';
+import * as fileHelper from '../../utils/file';
 
 export const getAddProduct = (_req: Request, res: Response) => {
   res.render('mongoose/admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: [],
     linkIndex: 4,
   });
 };
 
-export const postAddProduct = (req: any, res: Response) => {
+export const postAddProduct = (req: any, res: Response, next: NextFunction) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
   const errors = validationResult(req);
+  const image = req.file;
+
+  if (!image) {
+    return res.status(422).render('mongoose/admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      product: {
+        title,
+        price,
+        description
+      },
+      editing: false,
+      hasError: true,
+      errorMessage: 'Attached file is not an image.',
+      validationErrors: [],
+      linkIndex: 4,
+    });
+  }
 
   if (!errors.isEmpty()) {
     return res.status(422).render('mongoose/admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/edit-product',
-      editing: false,
-      hasError: true,
       product: {
         title,
-        imageUrl,
         price,
         description,
       },
+      editing: false,
+      hasError: true,
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
       linkIndex: 4,
     });
   }
 
+  const imageUrl = image.path;
+
   const product = new Product({
     title,
     price,
-    description,
     imageUrl,
+    description,
     userId: req.user,
   });
 
@@ -49,11 +71,12 @@ export const postAddProduct = (req: any, res: Response) => {
     .then(() => {
       res.redirect('/admin/products');
     })
-    .catch(() => {
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const getEditProduct = (req: Request, res: Response) => {
+export const getEditProduct = (req: Request, res: Response, next: NextFunction) => {
   const editMode = req.query.edit;
 
   if (!editMode) {
@@ -79,17 +102,17 @@ export const getEditProduct = (req: Request, res: Response) => {
         linkIndex: 5,
       });
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const postEditProduct = (req: any, res: Response) => {
+export const postEditProduct = (req: any, res: Response, next: NextFunction) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+  const image = req.file;
 
   const errors = validationResult(req);
 
@@ -97,15 +120,14 @@ export const postEditProduct = (req: any, res: Response) => {
     return res.status(422).render('mongoose/admin/edit-product', {
       pageTitle: 'Edit Product',
       path: '/admin/edit-product',
-      editing: true,
-      hasError: true,
       product: {
         title: updatedTitle,
-        imageUrl: updatedImageUrl,
         price: updatedPrice,
         description: updatedDesc,
         _id: prodId
       },
+      editing: true,
+      hasError: true,
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
       linkIndex: 5,
@@ -122,7 +144,11 @@ export const postEditProduct = (req: any, res: Response) => {
         product.title = updatedTitle;
         product.price = updatedPrice;
         product.description = updatedDesc;
-        product.imageUrl = updatedImageUrl;
+
+        if (image) {
+          fileHelper.deleteFile(product.imageUrl);
+          product.imageUrl = image.path;
+        }
 
         return product.save()
           .then(() => {
@@ -130,12 +156,12 @@ export const postEditProduct = (req: any, res: Response) => {
           });
       }
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const getProducts = (req: any, res: Response) => {
+export const getProducts = (req: any, res: Response, next: NextFunction) => {
   Product.find({ userId: req.user._id })
     .then((products) => {
       res.render('mongoose/admin/products', {
@@ -145,20 +171,29 @@ export const getProducts = (req: any, res: Response) => {
         linkIndex: 5,
       });
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
 // POST Routes
-export const postDeleteProduct = (req: any, res: Response) => {
+export const postDeleteProduct = (req: any, res: Response, next: NextFunction) => {
   const prodId = req.body.productId;
 
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
+  Product.findById(prodId)
+    .then((product) => {
+      if (!product) {
+        return next(new Error('Product not found.'));
+      }
+
+      fileHelper.deleteFile(product.imageUrl);
+
+      Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
     .then(() => {
       res.redirect('/admin/products');
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };

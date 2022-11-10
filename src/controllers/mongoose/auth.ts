@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { Request, Response } from 'express';
-import * as nodemailer from 'nodemailer';
+import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
+import * as nodemailer from 'nodemailer';
+
 import User from '../../models/mongoose/user';
 
 const sendgridTransport = require('nodemailer-sendgrid-transport');
@@ -27,11 +28,11 @@ export const getLogin = (req: any, res: Response) => {
   res.render('mongoose/auth/login', {
     path: '/login',
     pageTitle: 'Login',
-    errorMessage: message,
     values: {
       email: '',
       password: '',
     },
+    errorMessage: message,
     validationErrors: [],
     linkIndex: 6,
   });
@@ -50,18 +51,18 @@ export const getSignup = (req: any, res: Response) => {
   res.render('mongoose/auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    errorMessage: message,
     values: {
       email: '',
       password: '',
       confirmPassword: '',
     },
+    errorMessage: message,
     validationErrors: [],
     linkIndex: 7,
   });
 };
 
-export const postLogin = (req: any, res: Response) => {
+export const postLogin = (req: any, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
 
@@ -82,8 +83,17 @@ export const postLogin = (req: any, res: Response) => {
   User.findOne({ email })
     .then((user: any) => {
       if (!user) {
-        req.flash('error', 'Invalid email or password.');
-        return res.redirect('/login');
+        return res.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          values: {
+            email: email,
+            password: password
+          },
+          errorMessage: 'Invalid email or password.',
+          validationErrors: [],
+          linkIndex: 6,
+        });
       }
 
       return bcrypt.compare(password, user.password)
@@ -95,19 +105,28 @@ export const postLogin = (req: any, res: Response) => {
             return req.session.save(() => res.redirect('/'));
           }
 
-          req.flash('error', 'Invalid email or password.');
-          return res.redirect('/login');
+          return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            values: {
+              email: email,
+              password: password
+            },
+            errorMessage: 'Invalid email or password.',
+            validationErrors: [],
+            linkIndex: 6,
+          });
         })
         .catch(() => {
           res.redirect('/login');
         });
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const postSignup = (req: any, res: Response) => {
+export const postSignup = (req: any, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
 
@@ -116,12 +135,12 @@ export const postSignup = (req: any, res: Response) => {
     return res.status(422).render('mongoose/auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
-      errorMessage: errors.array()[0].msg,
       values: {
         email,
         password,
         confirmPassword: req.body.confirmPassword
       },
+      errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
       linkIndex: 7,
     });;
@@ -146,7 +165,8 @@ export const postSignup = (req: any, res: Response) => {
         html: '<h1>You successfully signed up!</h1>'
       });
     })
-    .catch(() => {
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
@@ -174,7 +194,7 @@ export const getReset = (req: Request, res: Response) => {
   });
 };
 
-export const postReset = (req: Request, res: Response) => {
+export const postReset = (req: Request, res: Response, next: NextFunction) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       return res.redirect('/reset');
@@ -204,13 +224,13 @@ export const postReset = (req: Request, res: Response) => {
           `
         });
       })
-      .catch(error => {
-        throw new Error(error);
+      .catch((error) => {
+        return next(new Error(error));
       });
   });
 };
 
-export const getNewPassword = (req: Request, res: Response) => {
+export const getNewPassword = (req: Request, res: Response, next: NextFunction) => {
   const token = req.params.token;
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then((user: any) => {
@@ -226,18 +246,18 @@ export const getNewPassword = (req: Request, res: Response) => {
       res.render('mongoose/auth/new-password', {
         path: '/new-password',
         pageTitle: 'New Password',
-        errorMessage: message,
         userId: user._id.toString(),
         passwordToken: token,
+        errorMessage: message,
         linkIndex: -1,
       });
     })
-    .catch(error => {
-      throw new Error(error);
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const postNewPassword = (req: Request, res: Response) => {
+export const postNewPassword = (req: Request, res: Response, next: NextFunction) => {
   const newPassword = req.body.password;
   const userId = req.body.userId;
   const passwordToken = req.body.passwordToken;
@@ -261,7 +281,7 @@ export const postNewPassword = (req: Request, res: Response) => {
     .then(() => {
       res.redirect('/login');
     })
-    .catch(error => {
-      throw new Error(error);
+    .catch((error) => {
+      return next(new Error(error));
     });
 };

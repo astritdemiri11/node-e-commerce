@@ -1,7 +1,12 @@
+import { NextFunction, Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
+import PDFDocument from 'pdfkit';
+
 import Order from '../../models/mongoose/order';
 import Product from '../../models/mongoose/product';
 
-export const getProducts = (_req: Request, res: any) => {
+export const getProducts = (_req: Request, res: any, next: NextFunction) => {
   Product.find()
     .then((products) => {
       res.render('mongoose/shop/products', {
@@ -11,11 +16,12 @@ export const getProducts = (_req: Request, res: any) => {
         linkIndex: 1,
       });
     })
-    .catch(() => {
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const getProduct = (req: any, res: any) => {
+export const getProduct = (req: any, res: any, next: NextFunction) => {
   const prodId = req.params.id;
   Product.findById(prodId)
     .then((product: any) => {
@@ -26,12 +32,12 @@ export const getProduct = (req: any, res: any) => {
         linkIndex: 1,
       });
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const getIndex = (_req: Request, res: any) => {
+export const getIndex = (_req: Request, res: any, next: NextFunction) => {
   Product.find()
     .then((products) => {
       res.render('mongoose/shop/index', {
@@ -41,11 +47,12 @@ export const getIndex = (_req: Request, res: any) => {
         linkIndex: 0,
       });
     })
-    .catch(() => {
+    .catch((error) => {
+      return next(new Error(error));
     });
 };
 
-export const getCart = (req: any, res: any) => {
+export const getCart = (req: any, res: any, next: NextFunction) => {
   req.user
     .populate('cart.items.productId')
     .then((user: any) => {
@@ -57,8 +64,8 @@ export const getCart = (req: any, res: any) => {
         linkIndex: 2,
       });
     })
-    .catch(() => {
-
+    .catch((error: any) => {
+      return next(new Error(error));
     });
 };
 
@@ -70,17 +77,17 @@ export const postCart = (req: any, res: any) => {
     .then(() => res.redirect('/cart'));
 };
 
-export const postCartDeleteProduct = (req: any, res: any) => {
+export const postCartDeleteProduct = (req: any, res: any, next: NextFunction) => {
   const prodId = req.body.productId;
   req.user
     .removeFromCart(prodId)
     .then(() => res.redirect('/cart'))
-    .catch(() => {
-
+    .catch((error: any) => {
+      return next(new Error(error));
     });
 };
 
-export const postOrders = (req: any, res: any) => {
+export const postOrders = (req: any, res: any, next: NextFunction) => {
   req.user
     .populate('cart.items.productId')
     .then((user: any) => {
@@ -101,12 +108,12 @@ export const postOrders = (req: any, res: any) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(() => {
-
+    .catch((error: any) => {
+      return next(new Error(error));
     });
 };
 
-export const getOrders = (req: any, res: any) => {
+export const getOrders = (req: any, res: any, next: NextFunction) => {
   Order.find({ 'user.userId': req.user._id })
     .then((orders) => {
       res.render('mongoose/shop/orders', {
@@ -116,7 +123,59 @@ export const getOrders = (req: any, res: any) => {
         linkIndex: 3,
       });
     })
-    .catch(() => {
-
+    .catch((error) => {
+      return next(new Error(error));
     });
+};
+
+export const getInvoice = (req: any, res: Response, next: NextFunction) => {
+  const orderId = req.params.orderId;
+
+  Order.findById(orderId)
+    .then((order) => {
+      if (!order) {
+        return next(new Error('No order found.'));
+      }
+
+      if (order.user && order.user.userId.toString() !== req.user._id.toString()) {
+        return next(new Error('Unauthorized'));
+      }
+
+      const invoiceName = 'invoice-' + orderId + '.pdf';
+      const invoicePath = path.join('data', 'invoices', invoiceName);
+
+      const pdfDoc = new PDFDocument();
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        'inline; filename="' + invoiceName + '"'
+      );
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(26).text('Invoice', {
+        underline: true
+      });
+      pdfDoc.text('-----------------------');
+      let totalPrice = 0;
+      order.products.forEach(prod => {
+        totalPrice += prod.quantity * prod.product.price;
+        pdfDoc
+          .fontSize(14)
+          .text(
+            prod.product.title +
+            ' - ' +
+            prod.quantity +
+            ' x ' +
+            '$' +
+            prod.product.price
+          );
+      });
+      pdfDoc.text('---');
+      pdfDoc.fontSize(20).text('Total Price: $' + totalPrice);
+
+      pdfDoc.end();
+    })
+    .catch(err => next(err));
 };

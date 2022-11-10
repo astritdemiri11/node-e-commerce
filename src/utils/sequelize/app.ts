@@ -4,7 +4,7 @@ import express, { NextFunction, Response } from 'express'
 
 import rootDir from '../path'
 
-import notFoundRoute from '../../routes/sequelize/404'
+import notFoundRoute from '../../routes/sequelize/error'
 import adminRoutes from '../../routes/sequelize/admin'
 import shopRoutes from '../../routes/sequelize/shop'
 
